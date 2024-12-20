@@ -1,18 +1,22 @@
 defmodule ElixirPlayground do
-  @moduledoc """
-  Documentation for `ElixirPlayground`.
-  """
+  use Application
 
-  @doc """
-  Hello world.
+  def start(_type, _args) do
+    IO.puts("hello world")
 
-  ## Examples
+    ElixirPlayground.main()
+    # This is here to satisfy the app start API
+    # app callback must return a supervisor tree
+    # children = [Contacts.Repo]
+    Supervisor.start_link([], strategy: :one_for_one)
+  end
 
-      iex> ElixirPlayground.hello()
-      :world
+  def main do
+    json_str = Jason.encode!(%{1 => 1, 2 => 2})
+    IO.puts(json_str)
 
-  """
-  def hello do
-    :world
+    contact = %Contacts.Contacts{sat_id: "c14", groundstation: "ohio"}
+    Contacts.Repo.start_link()
+    Contacts.Repo.insert(contact)
   end
 end
