@@ -32,3 +32,7 @@ elixir_playground-*.tar
 
 # Editor
 .zed
+
+# Added by Miguel
+/.elixir-tools/
+/.zed/
