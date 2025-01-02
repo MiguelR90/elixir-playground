@@ -73,14 +73,16 @@ end
 string = Utils.prefix("hello world")
 IO.puts(string)
 
-# Protocol are a what to implement interfaces
-#
+# Protocols the way to implement interfaces
 defprotocol Utility do
   # this spec syntax is for documentation purposes and is not needed
   @spec type(t) :: String.t()
   def type(value)
 end
 
+# This is an implementation of the protocol for bitstrings
+# not sure what the difference is between bitstring and strings are
+# but it works as you'd expect
 defimpl Utility, for: BitString do
   def type(_value), do: "input was string"
 end
@@ -91,3 +93,27 @@ end
 
 IO.puts(Utility.type("hello world"))
 IO.puts(Utility.type(1234))
+
+# map sets are the sets in elixir
+set =
+  MapSet.new()
+  |> MapSet.put(1)
+  |> MapSet.put(2)
+  |> MapSet.put(3)
+  |> MapSet.put(4)
+  |> MapSet.put(4)
+  |> MapSet.put(4)
+  |> MapSet.put(4)
+
+# prints a debugging stack
+dbg(set)
+
+# Extend protocol implementation with map set
+defimpl Utility, for: MapSet do
+  def type(_value), do: "input is MapSet"
+end
+
+IO.puts(Utility.type(set))
+
+# IO inspect can be places in between transform pipelines
+1..10 |> IO.inspect(label: "before") |> Enum.sum() |> IO.inspect(label: "after")
