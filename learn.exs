@@ -117,3 +117,63 @@ IO.puts(Utility.type(set))
 
 # IO inspect can be places in between transform pipelines
 1..10 |> IO.inspect(label: "before") |> Enum.sum() |> IO.inspect(label: "after")
+
+# Comprehensions
+IO.puts("Learning about comprehensions...")
+data = for n <- 1..10, do: n * 2
+IO.puts(data |> Enum.join(", "))
+# IO.inspect(data) adds a bunch of lines before print to stdin
+
+# something about the :into option during comprehensions
+# stream = IO.stream(:stdio, :line)
+
+# for line <- stream, into: stream do
+#   String.upcase(line) <> "\n"
+# end
+
+# Regular expression as first class citizens of the language (inspired by perl)
+# i stands for case insensitive
+regex = ~r/miguel|elyn/i
+check = "miguel" =~ regex
+IO.puts(check)
+check = "Elyn (Emmie) Rodriguez" =~ regex
+IO.puts(check)
+
+# Charlist (i still don't quite understand the difference between this and regular strings)
+value = ~c"cat"
+IO.puts(value)
+
+# String (convenient w/ double quotes strings)
+value = ~s(this is a string with "double quotes" and 'single' too)
+IO.puts(value)
+
+# Word list (this seems super convenient) sep by blank line (?)
+values = ~w(miguel elyn emmie lydia)
+IO.puts(values |> Enum.join("\n"))
+
+multiline = ~s"""
+this is a multiline string
+more lines
+another  one
+
+one in between
+"""
+
+IO.puts(multiline)
+
+# Sigils can be used for datetimes as well !!! nuts
+datetime = ~U[2019-10-31 19:59:03Z]
+IO.puts(datetime)
+
+# Erlang modules can be accessed by the :atom sytax
+:io.format("Pi is approximately give by: ~10.3f~n", [:math.pi()])
+
+# Erlang has a (in-memory or disk) data storage called :ets or :dets respectively
+# Stands for Erlang Term Storage (think of it as a key value pair storage)
+# table = :ets.new(:ets_test, [])
+# :ets.insert(table, {"China", 1.374})
+# :ets.insert(table, {"India", 1.284})
+# :ets.insert(table, {"USA", 0.322})
+# data = :ets.i(table, 0)
+# IO.puts(data)
+# Not sure why this wasn't working
