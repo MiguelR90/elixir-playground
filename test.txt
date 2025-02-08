@@ -1,0 +1,30 @@
+“Practice exercises
+
+  This style of coding takes some getting used to. You’ll use the techniques presented here throughout the book, but you should try to write a couple such iterations yourself. The following are some exercise ideas that may help you get into the swing of things.
+
+  Using large_lines!/1 as a model, write the following functions:
+
+  
+    
+      A lines_lengths!/1 that takes a file path and returns a list of numbers, with each number representing the length of the corresponding line from the file.
+    
+
+    
+      A longest_line_length!/1 that returns the length of the longest line in a file.
+    
+
+    
+      A longest_line!/1 that returns the contents of the longest line in a file.
+    
+
+    
+      A words_per_line!/1 that returns a list of numbers, with each number representing the word count in a file. Hint: To find the word count of a line, use length(String.split(line)).
+    
+  
+
+  Solutions are provided in the enum_streams_practice.ex file, but I strongly suggest you spend some time trying to crack these problems yourself.”
+
+Excerpt From
+Elixir in Action, Third Edition
+Sasa Juric
+This material may be protected by copyright.
