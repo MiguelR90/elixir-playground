@@ -1,4 +1,4 @@
-defmodule ElixirPlayground.Application do
+defmodule ElixirPlayground do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc false
@@ -7,14 +7,30 @@ defmodule ElixirPlayground.Application do
 
   @impl true
   def start(_type, _args) do
-    children = [
-      # Starts a worker by calling: ElixirPlayground.Worker.start_link(arg)
-      # {ElixirPlayground.Worker, arg}
-    ]
-
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
+    # This is here to satisfy the app start API
+    # app callback must return a supervisor tree
+    IO.puts("Starting app supervisor...")
+    children = [Contacts.Repo]
     opts = [strategy: :one_for_one, name: ElixirPlayground.Supervisor]
-    Supervisor.start_link(children, opts)
+    supervisor = Supervisor.start_link(children, opts)
+
+    # Now that supervisor is up and running we can call main
+    ElixirPlayground.main()
+
+    # The supervisor needs to be returned at the end of start method
+    supervisor
   end
+
+  def main do
+    json_str = Jason.encode!(%{1 => 1, 2 => 2})
+    IO.puts(json_str)
+
+    contact = %Contacts.Contacts{sat_id: "c14", groundstation: "ohio"}
+    Contacts.Repo.insert(contact)
+  end
+
+  def hello do
+    :world
+  end
+
 end
