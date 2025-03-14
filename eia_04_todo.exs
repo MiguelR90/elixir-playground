@@ -24,6 +24,7 @@ defmodule TodoList do
   end
 
   def delete_entry(todo_list, id) do
+    # NOTE: no need for cases sice if id doesn't exist it returns the map unchanged
     entries = Map.delete(todo_list.entries, id)
     %TodoList{next_id: todo_list.next_id, entries: entries}
   end
