@@ -31,18 +31,40 @@ defmodule TodoList do
 end
 
 defmodule TodoList.CsvImporter do
-  defp line_to_map(entry_str) when is_bitstring(entry_str) do
-    keys = [:name, :age, :language, :likes]
+  defp line_to_map(entry_str, keys) when is_bitstring(entry_str) do
     values = String.split(entry_str, ",")
-    Map.new(Enum.zip(keys, values))
+
+    if keys do
+      Map.new(Enum.zip(keys, values))
+    else
+      # Enum.with_index() requires a swap when building a map with indexes as keys
+      Map.new(
+        Enum.with_index(values)
+        |> Enum.map(fn {item, index} -> {index, item} end)
+      )
+    end
   end
 
-  def import(path) do
-    todo_list =
+  def import(path, keys? \\ true) do
+    if keys? do
+      keys =
+        File.stream!(path)
+        |> Enum.fetch!(0)
+        |> String.trim_trailing()
+        |> String.split(",")
+
+      # NOTE: not sure how to incrementally stream to avoid dropping first line
+      File.stream!(path)
+      |> Stream.drop(1)
+      |> Stream.map(&String.trim_trailing(&1))
+      |> Stream.map(&line_to_map(&1, keys))
+      |> TodoList.new()
+    else
       File.stream!(path)
       |> Stream.map(&String.trim_trailing(&1))
-      |> Stream.map(&line_to_map(&1))
+      |> Stream.map(&line_to_map(&1, nil))
       |> TodoList.new()
+    end
   end
 end
 
@@ -62,13 +84,13 @@ defmodule Main do
     |> IO.inspect()
     |> TodoList.add_entry(%{name: "lydia"})
     |> IO.inspect()
-  end
 
-  def run2 do
-    TodoList.CsvImporter.import("todo_list.csv")
+    TodoList.CsvImporter.import("todo_list.csv", true)
+    |> IO.inspect()
+
+    TodoList.CsvImporter.import("todo_list2.csv", false)
     |> IO.inspect()
   end
 end
 
 Main.run()
-Main.run2()
