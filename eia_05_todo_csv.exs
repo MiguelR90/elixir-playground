@@ -39,10 +39,9 @@ defmodule TodoList.CsvImporter do
 
   def import(path) do
     todo_list =
-      File.read!(path)
-      |> String.trim_trailing()
-      |> String.split("\n")
-      |> Enum.map(&line_to_map(&1))
+      File.stream!(path)
+      |> Stream.map(&String.trim_trailing(&1))
+      |> Stream.map(&line_to_map(&1))
       |> TodoList.new()
   end
 end
