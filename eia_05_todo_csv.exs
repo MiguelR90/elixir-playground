@@ -30,6 +30,23 @@ defmodule TodoList do
   end
 end
 
+defmodule TodoList.CsvImporter do
+  defp line_to_map(entry_str) when is_bitstring(entry_str) do
+    keys = [:name, :age, :language, :likes]
+    values = String.split(entry_str, ",")
+    Map.new(Enum.zip(keys, values))
+  end
+
+  def import(path) do
+    todo_list =
+      File.read!(path)
+      |> String.trim_trailing()
+      |> String.split("\n")
+      |> Enum.map(&line_to_map(&1))
+      |> TodoList.new()
+  end
+end
+
 # nice but i have a feeling that it can be just so so much better
 defmodule Main do
   def run do
@@ -47,6 +64,12 @@ defmodule Main do
     |> TodoList.add_entry(%{name: "lydia"})
     |> IO.inspect()
   end
+
+  def run2 do
+    TodoList.CsvImporter.import("todo_list.csv")
+    |> IO.inspect()
+  end
 end
 
 Main.run()
+Main.run2()
