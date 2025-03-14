@@ -31,18 +31,15 @@ defmodule TodoList do
 end
 
 defmodule TodoList.CsvImporter do
-  defp line_to_map(entry_str, keys) when is_bitstring(entry_str) do
+  defp line_to_map(entry_str, nil) when is_bitstring(entry_str) do
     values = String.split(entry_str, ",")
+    keys = 0..length(values)
+    Map.new(Enum.zip(keys, values))
+  end
 
-    if keys do
-      Map.new(Enum.zip(keys, values))
-    else
-      # Enum.with_index() requires a swap when building a map with indexes as keys
-      Map.new(
-        Enum.with_index(values)
-        |> Enum.map(fn {item, index} -> {index, item} end)
-      )
-    end
+  defp line_to_map(entry_str, keys) when is_bitstring(entry_str) and is_list(keys) do
+    values = String.split(entry_str, ",")
+    Map.new(Enum.zip(keys, values))
   end
 
   def import(path, keys? \\ true) do
