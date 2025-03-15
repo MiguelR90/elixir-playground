@@ -65,6 +65,13 @@ defmodule TodoList.CsvReader do
   end
 end
 
+# NOTE: ex of impl String.Chars.to_string protocol for TodoList
+defimpl String.Chars, for: TodoList do
+  def to_string(%TodoList{} = todo_list) do
+    "#{inspect(todo_list, pretty: true)}"
+  end
+end
+
 # nice but i have a feeling that it can be just so so much better
 defmodule Main do
   def run do
@@ -82,8 +89,9 @@ defmodule Main do
     |> TodoList.add_entry(%{name: "lydia"})
     |> IO.inspect()
 
-    TodoList.CsvReader.read!("todo_list.csv", true)
-    |> IO.inspect()
+    todo = TodoList.CsvReader.read!("todo_list.csv", true)
+    # to_string(TodoList.new()) because of the protocol concrete impl
+    IO.puts(to_string(todo))
 
     TodoList.CsvReader.read!("todo_list2.csv", false)
     |> IO.inspect()
