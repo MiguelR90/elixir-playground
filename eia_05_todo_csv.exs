@@ -30,19 +30,19 @@ defmodule TodoList do
   end
 end
 
-defmodule TodoList.CsvImporter do
-  defp line_to_map(entry_str, nil) when is_bitstring(entry_str) do
+defmodule TodoList.CsvReader do
+  defp decode(entry_str, nil) when is_bitstring(entry_str) do
     values = String.split(entry_str, ",")
     keys = 0..length(values)
     Map.new(Enum.zip(keys, values))
   end
 
-  defp line_to_map(entry_str, keys) when is_bitstring(entry_str) and is_list(keys) do
+  defp decode(entry_str, keys) when is_bitstring(entry_str) and is_list(keys) do
     values = String.split(entry_str, ",")
     Map.new(Enum.zip(keys, values))
   end
 
-  def import(path, keys? \\ true) do
+  def read!(path, keys? \\ true) do
     if keys? do
       keys =
         File.stream!(path)
@@ -54,12 +54,12 @@ defmodule TodoList.CsvImporter do
       File.stream!(path)
       |> Stream.drop(1)
       |> Stream.map(&String.trim_trailing(&1))
-      |> Stream.map(&line_to_map(&1, keys))
+      |> Stream.map(&decode(&1, keys))
       |> TodoList.new()
     else
       File.stream!(path)
       |> Stream.map(&String.trim_trailing(&1))
-      |> Stream.map(&line_to_map(&1, nil))
+      |> Stream.map(&decode(&1, nil))
       |> TodoList.new()
     end
   end
@@ -82,10 +82,10 @@ defmodule Main do
     |> TodoList.add_entry(%{name: "lydia"})
     |> IO.inspect()
 
-    TodoList.CsvImporter.import("todo_list.csv", true)
+    TodoList.CsvReader.read!("todo_list.csv", true)
     |> IO.inspect()
 
-    TodoList.CsvImporter.import("todo_list2.csv", false)
+    TodoList.CsvReader.read!("todo_list2.csv", false)
     |> IO.inspect()
   end
 end
