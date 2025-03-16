@@ -72,6 +72,19 @@ defimpl String.Chars, for: TodoList do
   end
 end
 
+# NOTE: Collectable protocol which extends TodoLists with Enum.into functionality
+defimpl Collectable, for: TodoList do
+  def into(original) do
+    {original, &into_callback/2}
+  end
+
+  # NOTE: Alternative this can be an anonymous func in the into call itself
+  # Ref: https://hexdocs.pm/elixir/Collectable.html
+  defp into_callback(todo_list, {:cont, entry}), do: TodoList.add_entry(todo_list, entry)
+  defp into_callback(todo_list, :done), do: todo_list
+  defp into_callback(_todo_list, :halt), do: :ok
+end
+
 # nice but i have a feeling that it can be just so so much better
 defmodule Main do
   def run do
@@ -95,6 +108,9 @@ defmodule Main do
 
     TodoList.CsvReader.read!("todo_list2.csv", false)
     |> IO.inspect()
+
+    entries = [%{name: "alejandra"}, %{name: "mabel"}, %{name: "titi"}]
+    Enum.into(entries, TodoList.new()) |> IO.inspect()
   end
 end
 
