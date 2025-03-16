@@ -85,33 +85,53 @@ defimpl Collectable, for: TodoList do
   defp into_callback(_todo_list, :halt), do: :ok
 end
 
-# nice but i have a feeling that it can be just so so much better
-defmodule Main do
-  def run do
-    TodoList.new([%{name: "alejandra"}, %{name: "mabel"}, %{name: "titi"}])
-    |> TodoList.add_entry(%{name: "miguel"})
-    |> IO.inspect()
-    |> TodoList.add_entry(%{name: "elyn"})
-    |> IO.inspect()
-    |> TodoList.update_entry(1, %{age: 34, lang: "elixir", likes: "bikes"})
-    |> IO.inspect()
-    |> TodoList.update_entry(2, %{age: 2, lang: "spanish", likes: "piggy"})
-    |> IO.inspect()
-    |> TodoList.delete_entry(1)
-    |> IO.inspect()
-    |> TodoList.add_entry(%{name: "lydia"})
-    |> IO.inspect()
+ExUnit.start()
 
-    todo = TodoList.CsvReader.read!("todo_list.csv", true)
-    # to_string(TodoList.new()) because of the protocol concrete impl
-    IO.puts(to_string(todo))
+defmodule AssertionTest do
+  # NOTE: that we pass "async: true", this runs the tests in the
+  # test module concurrently with other test modules. The 
+  # individual tests within each test module are still run serially.
+  use ExUnit.Case, async: true
 
-    TodoList.CsvReader.read!("todo_list2.csv", false)
-    |> IO.inspect()
+  test "todo new" do
+    todo_list = TodoList.new([%{name: "alejandra"}, %{name: "mabel"}, %{name: "titi"}])
+    assert map_size(todo_list.entries) == 3
+    assert todo_list.next_id == 4
+  end
 
+  test "todo add_entry" do
+    todo_list = TodoList.new() |> TodoList.add_entry(%{name: "miguel"})
+    assert map_size(todo_list.entries) == 1
+    assert todo_list.next_id == 2
+  end
+
+  test "todo delete_entry" do
+    todo_list = TodoList.new([%{name: "test_entry"}]) |> TodoList.delete_entry(1)
+    assert map_size(todo_list.entries) == 0
+  end
+
+  test "todo update_entry" do
+    todo_list =
+      TodoList.new()
+      |> TodoList.add_entry(%{name: "miguel"})
+      |> TodoList.update_entry(1, %{age: 34, lang: "elixir", likes: "bikes"})
+
+    assert map_size(todo_list.entries[1]) == 4
+  end
+
+  test "todo csv reader with headers" do
+    todo_list = TodoList.CsvReader.read!("todo_list.csv", true)
+    assert map_size(todo_list.entries) == 3
+  end
+
+  test "todo csv reader without headers" do
+    todo_list = TodoList.CsvReader.read!("todo_list2.csv", false)
+    assert map_size(todo_list.entries) == 3
+  end
+
+  test "todo Enum.into protocol" do
     entries = [%{name: "alejandra"}, %{name: "mabel"}, %{name: "titi"}]
-    Enum.into(entries, TodoList.new()) |> IO.inspect()
+    todo_list = Enum.into(entries, TodoList.new())
+    assert map_size(todo_list.entries) == 3
   end
 end
-
-Main.run()
